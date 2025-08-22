@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Retail Portal — Setup</title>
+  <style>
+    :root { --bg:#ffffff; --surface:#f8fafc; --text:#0f172a; --muted:#eef2ff; --muted-2:#e2e8f0; --link:#3b82f6; --brand:#4f46e5; --brand-2:#22c55e; --focus:#f59e0b; --border:#e5e7eb; --shadow:0 8px 24px rgba(2,6,23,0.08); --radius:14px; }
+    @media (prefers-color-scheme: dark){ :root{ --bg:#0b1020; --surface:#0f172a; --text:#e5e7eb; --muted:#182032; --muted-2:#1f2937; --link:#93c5fd; --brand:#818cf8; --brand-2:#86efac; --border:#1f2a44; --shadow:0 8px 24px rgba(0,0,0,0.35);} }
+    *,*::before,*::after{ box-sizing: border-box; }
+    body{ margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial; line-height:1.6; background:var(--bg); color:var(--text); }
+    a{ color:var(--link); text-decoration:none; }
+    .container{ width:min(1200px,100% - 32px); margin-inline:auto; }
+    .skip-link{ position:absolute; left:-999px; background:var(--brand); color:#fff; padding:10px 14px; border-radius:10px; }
+    .skip-link:focus{ left:12px; top:12px; z-index:1000; }
+
+    header{ position:sticky; top:0; z-index:100; backdrop-filter: blur(10px); background: color-mix(in oklab, var(--bg) 82%, transparent); border-bottom:1px solid var(--border); }
+    .navbar{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; gap:12px; }
+    .brand{ display:flex; gap:10px; align-items:center; font-weight:700; }
+    .logo{ width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg,var(--brand),var(--brand-2)); box-shadow:var(--shadow); }
+    nav ul{ list-style:none; display:flex; gap:6px; padding:0; margin:0; align-items:center; }
+    nav a{ display:inline-flex; padding:8px 12px; border-radius:10px; color:var(--text);} 
+    nav a:hover{ background:var(--muted);} 
+    nav a.active{ background:var(--muted);} 
+    .menu-toggle{ display:none; border:1px solid var(--border); background:var(--surface); padding:8px 10px; border-radius:10px; }
+    @media (max-width:860px){ nav ul{ display:none; position:absolute; right:0; top:calc(100% + 10px); flex-direction:column; min-width:240px; background:var(--bg); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:8px; }
+      nav[aria-expanded="true"] ul{ display:flex; }
+      .menu-toggle{ display:inline-flex; }
+    }
+
+    .page-head{ background: radial-gradient(1200px 600px at 10% 0%, color-mix(in oklab, var(--brand) 12%, transparent), transparent), radial-gradient(900px 400px at 90% 10%, color-mix(in oklab, var(--brand-2) 10%, transparent), transparent);} 
+    .page-head .wrap{ padding: clamp(26px, 5vw, 56px) 0; display:grid; gap:12px; }
+    .page-head h1{ font-size:clamp(24px,3.6vw,36px); margin:0; }
+    .breadcrumbs{ font-size:14px; opacity:0.85; }
+
+    .section{ padding:22px 0; }
+
+    .layout{ display:grid; grid-template-columns: 1.1fr 1.3fr; gap:16px; align-items:start; }
+    @media (max-width: 980px){ .layout{ grid-template-columns: 1fr; } }
+
+    .panel{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); }
+    .panel .hd{ padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .panel .bd{ padding:12px 14px; }
+
+    label{ display:block; font-size:12px; font-weight:700; margin-bottom:6px; }
+    input[type="text"], input[type="number"], input[type="date"], select{ width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); }
+    .row{ display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:12px; }
+    @media (max-width:560px){ .row{ grid-template-columns: 1fr; } }
+    .btn{ display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius:999px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; }
+    .btn.primary{ background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; border-color:transparent; }
+    .btn.danger{ border-color:#ef4444; }
+
+    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:var(--muted); font-size:12px; }
+
+    .table-wrap{ overflow:auto; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:var(--shadow); }
+    table{ width:100%; border-collapse:collapse; }
+    th,td{ padding:10px 12px; border-top:1px solid var(--border); text-align:left; }
+    tbody tr:hover{ background: color-mix(in oklab, var(--muted) 70%, transparent); }
+
+    .pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border:1px solid var(--border); border-radius:999px; background:var(--bg); }
+
+    footer{ margin-top:36px; background:var(--surface); border-top:1px solid var(--border); }
+    .footer-wrap{ padding:24px 0; display:grid; gap:16px; grid-template-columns:2fr 1fr 1fr 1fr; }
+    @media (max-width:900px){ .footer-wrap{ grid-template-columns:1fr 1fr; } }
+    @media (max-width:520px){ .footer-wrap{ grid-template-columns:1fr; } }
+    footer h4{ margin:0 0 8px; font-size:16px; }
+    footer ul{ list-style:none; padding:0; margin:0; display:grid; gap:6px; }
+    .copyright{ border-top:1px solid var(--border); padding:12px 0; font-size:14px; opacity:0.75; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header>
+    <div class="container navbar">
+      <div class="brand"><span class="logo" aria-hidden="true"></span><span>Retail Portal</span></div>
+      <button class="menu-toggle" aria-controls="primary-nav" aria-expanded="false" aria-label="Toggle navigation">☰ Menu</button>
+      <nav id="primary-nav" aria-label="Primary">
+        <ul role="list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="inventory-automation.html">Inventory Automation</a></li>
+          <li><a class="active" href="setup.html">Setup</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="page-head" aria-label="Setup">
+      <div class="container wrap">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="index.html">Home</a> / <span aria-current="page">Setup</span>
+        </nav>
+        <h1>Product & Group Setup</h1>
+        <p>Add products (e.g., <em>Ice Cream Tub #1</em>), define expiration rules, and assign to groups. The Inventory Automation page can then use simple rules like <strong>Track product → If expiration within X days → Decrease by Y%</strong>.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container layout">
+        <!-- LEFT: Product form -->
+        <aside class="panel" aria-label="Create or edit product">
+          <div class="hd">
+            <strong>New Product</strong>
+            <div style="display:flex; gap:8px;">
+              <button class="btn" id="resetForm" type="button">Reset</button>
+            </div>
+          </div>
+          <div class="bd">
+            <form id="productForm" autocomplete="off" novalidate>
+              <input type="hidden" id="productId" />
+              <div class="row">
+                <div>
+                  <label for="name">Product name</label>
+                  <input id="name" name="name" type="text" placeholder="Ice Cream Tub #1" required />
+                </div>
+                <div>
+                  <label for="sku">SKU (optional)</label>
+                  <input id="sku" name="sku" type="text" placeholder="ICE‑TUB‑001" />
+                </div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="group">Group</label>
+                  <select id="group" name="group"></select>
+                </div>
+                <div>
+                  <label for="newGroup">New group (optional)</label>
+                  <input id="newGroup" type="text" placeholder="e.g., Dairy" />
+                </div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="perishable">Perishable?</label>
+                  <select id="perishable" name="perishable">
+                    <option value="true">Yes</option>
+                    <option value="false" selected>No</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="shelfLifeDays">Shelf life (days)</label>
+                  <input id="shelfLifeDays" name="shelfLifeDays" type="number" min="0" step="1" value="0" />
+                </div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="warnWithinDays">Warn if expiring within (days)</label>
+                  <input id="warnWithinDays" name="warnWithinDays" type="number" min="0" step="1" value="7" />
+                </div>
+                <div>
+                  <label for="startQty">Starting qty (optional)</label>
+                  <input id="startQty" name="startQty" type="number" min="0" step="1" value="0" />
+                </div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="uom">Unit of measure</label>
+                  <input id="uom" name="uom" type="text" placeholder="tub, unit, pack…" />
+                </div>
+                <div>
+                  <label for="notes">Notes</label>
+                  <input id="notes" name="notes" type="text" placeholder="Storage, vendor, etc." />
+                </div>
+              </div>
+              <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn primary" type="submit" id="saveProduct">Save product</button>
+                <button class="btn" type="button" id="exportProducts">Export JSON</button>
+                <label class="btn" for="importFile" style="cursor:pointer;">Import JSON<input id="importFile" type="file" accept="application/json" style="display:none;" /></label>
+              </div>
+              <p id="formMsg" style="margin:10px 0 0; font-size:14px; opacity:.85;"></p>
+            </form>
+          </div>
+        </aside>
+
+        <!-- RIGHT: Lists -->
+        <section class="panel" aria-label="Inventory data">
+          <div class="hd">
+            <strong>Products</strong>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input id="search" type="text" placeholder="Search products…" style="padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);" />
+              <button class="btn" id="addGroup" type="button">Add Group</button>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="table-wrap">
+              <table id="productTable">
+                <thead><tr>
+                  <th>Name</th><th>SKU</th><th>Group</th><th>Perishable</th><th>Shelf life</th><th>Warn within</th><th>Qty</th><th>Actions</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <h3 style="margin:16px 0 8px;">Groups</h3>
+            <div id="groupList" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer aria-label="Footer">
+    <div class="container footer-wrap">
+      <div>
+        <h4>Retail Portal</h4>
+        <p>Setup your inventory once. Build automations with confidence.</p>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="inventory-automation.html">Automation</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container copyright">© <span id="year"></span> Retail Portal. All rights reserved.</div>
+  </footer>
+
+  <script>
+  (function(){
+    // ===== Constants =====
+    const LS_PRODUCTS = 'inv_products_v1';
+    const LS_GROUPS   = 'inv_groups_v1';
+
+    // Footer year
+    const yr = document.getElementById('year'); if (yr) yr.textContent = String(new Date().getFullYear());
+    // Mobile nav toggle
+    const toggle = document.querySelector('.menu-toggle');
+    const nav = document.getElementById('primary-nav');
+    toggle?.addEventListener('click', ()=>{
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!expanded));
+      nav?.setAttribute('aria-expanded', String(!expanded));
+    });
+
+    // ===== Helpers =====
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const uid = () => Math.random().toString(36).slice(2,10);
+
+    function loadProducts(){ try{ return JSON.parse(localStorage.getItem(LS_PRODUCTS) || '[]'); }catch{ return []; } }
+    function saveProducts(list){ localStorage.setItem(LS_PRODUCTS, JSON.stringify(list)); }
+    function loadGroups(){ try{ const g = JSON.parse(localStorage.getItem(LS_GROUPS) || '[]'); return Array.isArray(g) ? g : []; }catch{ return []; } }
+    function saveGroups(list){ localStorage.setItem(LS_GROUPS, JSON.stringify([...new Set(list)].filter(Boolean))); }
+
+    function setMsg(text, ok=true){ const el = $('#formMsg'); el.textContent = text; el.style.color = ok ? 'inherit' : '#ef4444'; }
+
+    // ===== Groups UI =====
+    function ensureDefaultGroups(){
+      const g = loadGroups(); if (g.length === 0){ saveGroups(['Ungrouped','Dairy','Frozen','Beverages']); }
+    }
+    function renderGroupSelect(){
+      const sel = $('#group'); sel.innerHTML = '';
+      for (const g of loadGroups()){
+        const opt = document.createElement('option'); opt.value = g; opt.textContent = g; sel.append(opt);
+      }
+      if (!sel.value) sel.value = 'Ungrouped';
+    }
+    function renderGroupList(){
+      const wrap = $('#groupList'); wrap.innerHTML = '';
+      for (const g of loadGroups()){
+        const pill = document.createElement('span'); pill.className = 'pill'; pill.textContent = g;
+        const del = document.createElement('button'); del.className='btn danger'; del.textContent='×'; del.title='Delete group';
+        del.addEventListener('click', ()=> deleteGroup(g));
+        const box = document.createElement('div'); box.style.display='inline-flex'; box.style.gap='6px'; box.style.alignItems='center';
+        box.append(pill, del);
+        wrap.append(box);
+      }
+    }
+    function addGroup(name){
+      name = (name||'').trim(); if (!name) return;
+      const g = loadGroups(); if (!g.includes(name)){ g.push(name); saveGroups(g); renderGroupSelect(); renderGroupList(); }
+    }
+    function deleteGroup(name){
+      if (name === 'Ungrouped') { alert('Cannot delete the default group.'); return; }
+      const g = loadGroups().filter(x => x !== name); saveGroups(g);
+      const p = loadProducts().map(p => p.group === name ? { ...p, group:'Ungrouped' } : p); saveProducts(p);
+      renderProducts(); renderGroupSelect(); renderGroupList();
+    }
+
+    $('#addGroup')?.addEventListener('click', ()=>{
+      const n = prompt('New group name:'); if (n) addGroup(n);
+    });
+
+    // ===== Product Form =====
+    function readForm(){
+      const id = $('#productId').value || uid();
+      const name = $('#name').value.trim();
+      if (!name) { setMsg('Name is required.', false); return null; }
+      const sku = $('#sku').value.trim();
+      const ng = $('#newGroup').value.trim(); if (ng) addGroup(ng);
+      const group = ng || $('#group').value || 'Ungrouped';
+      const perishable = $('#perishable').value === 'true';
+      const shelfLifeDays = Math.max(0, Number($('#shelfLifeDays').value || 0));
+      const warnWithinDays = Math.max(0, Number($('#warnWithinDays').value || 0));
+      const qty = Math.max(0, Number($('#startQty').value || 0));
+      const uom = $('#uom').value.trim();
+      const notes = $('#notes').value.trim();
+      return { id, name, sku, group, perishable, shelfLifeDays, warnWithinDays, qty, uom, notes, createdAt: Date.now() };
+    }
+
+    function fillForm(p){
+      $('#productId').value = p?.id || '';
+      $('#name').value = p?.name || '';
+      $('#sku').value = p?.sku || '';
+      $('#group').value = p?.group || 'Ungrouped';
+      $('#perishable').value = String(!!p?.perishable);
+      $('#shelfLifeDays').value = p?.shelfLifeDays ?? 0;
+      $('#warnWithinDays').value = p?.warnWithinDays ?? 7;
+      $('#startQty').value = p?.qty ?? 0;
+      $('#uom').value = p?.uom || '';
+      $('#notes').value = p?.notes || '';
+      setMsg('');
+    }
+
+    $('#resetForm')?.addEventListener('click', ()=>{ fillForm(null); });
+
+    $('#productForm')?.addEventListener('submit', (ev)=>{
+      ev.preventDefault();
+      const p = readForm(); if (!p) return;
+      const list = loadProducts();
+      const idx = list.findIndex(x => x.id === p.id);
+      if (idx >= 0) list[idx] = p; else list.push(p);
+      saveProducts(list);
+      renderProducts(); fillForm(null);
+      setMsg('Saved.');
+    });
+
+    // Export / Import
+    $('#exportProducts')?.addEventListener('click', ()=>{
+      const data = { products: loadProducts(), groups: loadGroups() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'inventory-setup.json'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    $('#importFile')?.addEventListener('change', async (e)=>{
+      const file = e.target.files?.[0]; if (!file) return;
+      const text = await file.text();
+      try{ const data = JSON.parse(text);
+        if (Array.isArray(data.products)) saveProducts(data.products);
+        if (Array.isArray(data.groups)) saveGroups(data.groups);
+        renderProducts(); renderGroupSelect(); renderGroupList();
+        setMsg('Import complete.');
+      } catch { alert('Invalid JSON file.'); }
+      e.target.value = '';
+    });
+
+    // ===== Product Table =====
+    function renderProducts(){
+      const body = $('#productTable tbody'); body.innerHTML = '';
+      const q = ($('#search').value||'').toLowerCase();
+      for (const p of loadProducts().filter(p => (p.name+ p.sku+ p.group).toLowerCase().includes(q)) ){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(p.name)}</td>
+          <td>${escapeHtml(p.sku||'')}</td>
+          <td><span class="badge">${escapeHtml(p.group||'Ungrouped')}</span></td>
+          <td>${p.perishable ? 'Yes' : 'No'}</td>
+          <td>${p.shelfLifeDays||0} d</td>
+          <td>${p.warnWithinDays||0} d</td>
+          <td>${p.qty||0} ${escapeHtml(p.uom||'')}</td>
+          <td>
+            <button class="btn" data-act="edit">Edit</button>
+            <button class="btn danger" data-act="del">Delete</button>
+          </td>`;
+        tr.querySelector('[data-act="edit"]').addEventListener('click', ()=> fillForm(p));
+        tr.querySelector('[data-act="del"]').addEventListener('click', ()=>{ if (confirm('Delete product?')){ const list = loadProducts().filter(x=>x.id!==p.id); saveProducts(list); renderProducts(); }});
+        body.append(tr);
+      }
+    }
+
+    $('#search')?.addEventListener('input', renderProducts);
+
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
+
+    // ===== Init =====
+    ensureDefaultGroups();
+    renderGroupSelect();
+    renderGroupList();
+    renderProducts();
+  })();
+  </script>
+</body>
+</html>
