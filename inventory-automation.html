@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Retail Portal — Inventory Automation</title>
+  <style>
+    :root { --bg:#ffffff; --surface:#f8fafc; --text:#0f172a; --muted:#eef2ff; --muted-2:#e2e8f0; --link:#3b82f6; --brand:#4f46e5; --brand-2:#22c55e; --focus:#f59e0b; --border:#e5e7eb; --shadow:0 8px 24px rgba(2,6,23,0.08); --radius:16px; }
+    @media (prefers-color-scheme: dark){ :root{ --bg:#0b1020; --surface:#0f172a; --text:#e5e7eb; --muted:#182032; --muted-2:#1f2937; --link:#93c5fd; --brand:#818cf8; --brand-2:#86efac; --border:#1f2a44; --shadow:0 8px 24px rgba(0,0,0,0.35);} }
+    *,*::before,*::after{ box-sizing:border-box; }
+    body{ margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial; line-height:1.6; background:var(--bg); color:var(--text); }
+    a{ color:var(--link); text-decoration:none; }
+    .container{ width:min(1300px,100% - 32px); margin-inline:auto; }
+    .skip-link{ position:absolute; left:-999px; background:var(--brand); color:#fff; padding:10px 14px; border-radius:10px; }
+    .skip-link:focus{ left:12px; top:12px; z-index:1000; }
+
+    header{ position:sticky; top:0; z-index:100; backdrop-filter: blur(10px); background: color-mix(in oklab, var(--bg) 82%, transparent); border-bottom:1px solid var(--border); }
+    .navbar{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; gap:12px; }
+    .brand{ display:flex; gap:10px; align-items:center; font-weight:700; }
+    .logo{ width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg,var(--brand),var(--brand-2)); box-shadow:var(--shadow); }
+    nav ul{ list-style:none; display:flex; gap:6px; padding:0; margin:0; align-items:center; }
+    nav a{ display:inline-flex; padding:8px 12px; border-radius:10px; color:var(--text);} 
+    nav a:hover{ background:var(--muted);} 
+    nav a.active{ background:var(--muted);} 
+    .menu-toggle{ display:none; border:1px solid var(--border); background:var(--surface); padding:8px 10px; border-radius:10px; }
+    @media (max-width:860px){ nav ul{ display:none; position:absolute; right:0; top:calc(100% + 10px); flex-direction:column; min-width:240px; background:var(--bg); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:8px; }
+      nav[aria-expanded="true"] ul{ display:flex; }
+      .menu-toggle{ display:inline-flex; }
+    }
+
+    .visually-hidden{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+    .page-head{ background: radial-gradient(1200px 600px at 10% 0%, color-mix(in oklab, var(--brand) 12%, transparent), transparent), radial-gradient(900px 400px at 90% 10%, color-mix(in oklab, var(--brand-2) 10%, transparent), transparent);} 
+    .page-head .wrap{ padding: clamp(26px, 5vw, 56px) 0; display:grid; gap:12px; }
+    .page-head h1{ font-size:clamp(24px,3.6vw,36px); margin:0; }
+    .breadcrumbs{ font-size:14px; opacity:0.85; }
+
+    .section{ padding:22px 0; }
+    .lead{ margin:0 0 14px; opacity:0.85; }
+
+    /* Layout: palette left, canvas right */
+    .layout{ display:grid; grid-template-columns: 360px 1fr; gap:16px; align-items:start; }
+    @media (max-width: 980px){ .layout{ grid-template-columns: 1fr; } }
+
+    .panel{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); }
+    .panel .hd{ padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .panel .bd{ padding:12px 14px; }
+
+    .search{ width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); }
+
+    /* Palette styled like SFMC tiles */
+    .palette{ display:grid; gap:10px; }
+    .group{ border:1px dashed var(--border); border-radius:12px; padding:10px; }
+    .group h3{ margin:0 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:.05em; opacity:.8; }
+    .tiles{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    @media (max-width:420px){ .tiles{ grid-template-columns:1fr; } }
+    .tile{ display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--border); border-radius:12px; background:var(--bg); box-shadow:var(--shadow); cursor:grab; user-select:none; }
+    .tile .ico{ width:28px; height:28px; border-radius:8px; display:grid; place-items:center; background:var(--muted); font-size:16px; }
+    .tile .title{ font-weight:700; }
+
+    /* Canvas: vertical journey with connectors */
+    .canvas-wrap{ display:grid; gap:10px; }
+    .narrative{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; font-size:15px; }
+    .narrative .muted{ opacity:0.8; }
+
+    .journey{ position:relative; padding-left:30px; }
+    .journey::before{ content:""; position:absolute; left:14px; top:0; bottom:0; width:2px; background:var(--muted-2); border-radius:2px; }
+    .node{ position:relative; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:12px; margin:8px 0; display:grid; gap:8px; }
+    .node::before{ content:""; position:absolute; left:-18px; top:20px; width:12px; height:12px; background:linear-gradient(135deg,var(--brand),var(--brand-2)); border-radius:999px; box-shadow:0 0 0 3px var(--bg); }
+    .node-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .node-meta{ display:flex; align-items:center; gap:8px; }
+    .node-ico{ width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background:var(--muted); font-size:18px; }
+    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:var(--muted); font-size:12px; }
+    .node-actions{ display:flex; gap:6px; }
+
+    .btn{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; }
+    .btn.primary{ background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; border-color:transparent; }
+    .btn.ghost{ background:transparent; }
+
+    .cfg{ display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:8px; }
+    @media (max-width:780px){ .cfg{ grid-template-columns:1fr; } }
+    label{ font-size:12px; font-weight:700; display:block; }
+    input[type="text"], input[type="number"], select{ width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); }
+
+    .dropzone{ border:2px dashed var(--border); border-radius:14px; min-height:140px; display:grid; place-items:center; color:#64748b; padding:10px; }
+    .drop-marker{ height:48px; border:2px dashed var(--brand); border-radius:10px; margin:6px 0; }
+    .ghost{ opacity:.6; }
+
+    .toolbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
+    select.toolbar{ padding:8px 10px; border:1px solid var(--border); background:var(--bg); color:var(--text); border-radius:10px; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header>
+    <div class="container navbar">
+      <div class="brand"><span class="logo" aria-hidden="true"></span><span>Retail Portal</span></div>
+      <button class="menu-toggle" aria-controls="primary-nav" aria-expanded="false" aria-label="Toggle navigation">☰ Menu</button>
+      <nav id="primary-nav" aria-label="Primary">
+        <ul role="list">
+          <li><a href="index.html">Home</a></li>
+          <li><a class="active" href="inventory-automation.html">Inventory Automation</a></li>
+          <li><a href="setup.html">Setup</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="page-head" aria-label="Inventory Automation">
+      <div class="container wrap">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="index.html">Home</a> / <span aria-current="page">Inventory Automation</span>
+        </nav>
+        <h1>Automation Builder</h1>
+        <p class="lead">Build an easy, readable journey: <strong>For [Product] → If [Conditions] → Then [Actions]</strong>. Drag tiles or use presets.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container layout">
+        <!-- LEFT: Palette (tiles like SFMC) -->
+        <aside class="panel" aria-label="Palette">
+          <div class="hd"><strong>Palette</strong><button class="btn" id="presetBtn" type="button">Load Preset</button></div>
+          <div class="bd palette" id="palette">
+            <div class="group">
+              <h3>Triggers</h3>
+              <div class="tiles">
+                <div class="tile" draggable="true" data-type="trackProduct"><div class="ico">📦</div><div><div class="title">Track Product</div><small>Select a product to monitor</small></div></div>
+                <div class="tile" draggable="true" data-type="schedule"><div class="ico">⏱️</div><div><div class="title">Schedule</div><small>Run daily/weekly</small></div></div>
+              </div>
+            </div>
+            <div class="group">
+              <h3>Conditions</h3>
+              <div class="tiles">
+                <div class="tile" draggable="true" data-type="expirationRule"><div class="ico">🧊</div><div><div class="title">Expiration Within</div><small>Days until expiry</small></div></div>
+                <div class="tile" draggable="true" data-type="qtyBelow"><div class="ico">📉</div><div><div class="title">Quantity Below</div><small>Threshold trigger</small></div></div>
+              </div>
+            </div>
+            <div class="group">
+              <h3>Actions</h3>
+              <div class="tiles">
+                <div class="tile" draggable="true" data-type="discount"><div class="ico">🏷️</div><div><div class="title">Apply Discount</div><small>Percent off</small></div></div>
+                <div class="tile" draggable="true" data-type="adjustQuantity"><div class="ico">➖</div><div><div class="title">Adjust Quantity</div><small>Increase/Decrease</small></div></div>
+                <div class="tile" draggable="true" data-type="notify"><div class="ico">🔔</div><div><div class="title">Notify</div><small>Email/SMS</small></div></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- RIGHT: Canvas -->
+        <section class="canvas-wrap" aria-label="Builder">
+          <div class="toolbar">
+            <button class="btn" id="clear" type="button">Clear</button>
+            <button class="btn" id="save" type="button">Save</button>
+            <button class="btn" id="export" type="button">Export JSON</button>
+            <select class="toolbar" id="preset">
+              <option value="">Presets…</option>
+              <option value="expSimple">20% discount if shelf life < 2 days</option>
+              <option value="basicReorder">Basic Reorder</option>
+            </select>
+            <button class="btn" id="loadPreset" type="button">Load</button>
+          </div>
+
+          <div class="narrative" id="narrative"><span class="muted">Readable summary will appear here…</span></div>
+
+          <div class="dropzone" id="dropzone" aria-label="Journey canvas">
+            <div>Drag tiles here to start your journey</div>
+          </div>
+          <div class="journey" id="journey" hidden></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer aria-label="Footer">
+    <div class="container" style="padding: 24px 0; border-top:1px solid var(--border); margin-top: 24px;">
+      <div style="display:grid; gap:10px; grid-template-columns:2fr 1fr 1fr 1fr;">
+        <div>
+          <h4 style="margin:0 0 8px;">Retail Portal</h4>
+          <p style="margin:0; opacity:.85;">Inventory automation builder. Drag, configure, and save.</p>
+        </div>
+        <div>
+          <h4 style="margin:0 0 8px;">Resources</h4>
+          <ul style="list-style:none; padding:0; margin:0; display:grid; gap:6px;">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="setup.html">Setup</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin:0 0 8px;">Company</h4>
+          <ul style="list-style:none; padding:0; margin:0; display:grid; gap:6px;">
+            <li><a href="#">About</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin:0 0 8px;">Legal</h4>
+          <ul style="list-style:none; padding:0; margin:0; display:grid; gap:6px;">
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Security</a></li>
+          </ul>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border); margin-top:12px; padding-top:12px; font-size:14px; opacity:.75;">© <span id="year"></span> Retail Portal. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+  (function(){
+    // ===== Utilities & DOM refs =====
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const uid = () => Math.random().toString(36).slice(2,9);
+
+    const yearEl = $('#year'); if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+    const toggle = document.querySelector('.menu-toggle');
+    const nav = document.getElementById('primary-nav');
+    toggle?.addEventListener('click', ()=>{
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!expanded));
+      nav?.setAttribute('aria-expanded', String(!expanded));
+    });
+
+    const palette = $('#palette');
+    const dropzone = $('#dropzone');
+    const journey = $('#journey');
+    const narrativeEl = $('#narrative');
+
+    // ===== Data & LocalStorage =====
+    const LS_PRODUCTS = 'inv_products_v1';
+    const PIPE_KEY = 'inventoryJourney_v2';
+    function loadProducts(){ try { return JSON.parse(localStorage.getItem(LS_PRODUCTS)||'[]'); } catch { return []; } }
+
+    // Registry of nodes (SFMC-like tiles)
+    const REG = {
+      trackProduct: { label:'Track Product', ico:'📦', kind:'trigger', defaults:{ productId:'' } },
+      schedule:     { label:'Schedule', ico:'⏱️', kind:'trigger', defaults:{ freq:'daily' } },
+      expirationRule:{ label:'Expiration Within', ico:'🧊', kind:'condition', defaults:{ withinDays:2 } },
+      qtyBelow:     { label:'Quantity Below', ico:'📉', kind:'condition', defaults:{ threshold:5 } },
+      discount:     { label:'Apply Discount', ico:'🏷️', kind:'action', defaults:{ percent:20 } },
+      adjustQuantity:{ label:'Adjust Quantity', ico:'➖', kind:'action', defaults:{ direction:'decrease', amount:20, unit:'%' } },
+      notify:       { label:'Notify', ico:'🔔', kind:'action', defaults:{ channel:'email' } }
+    };
+
+    // Palette drag
+    palette.addEventListener('dragstart', e=>{
+      const tile = e.target.closest('.tile'); if (!tile) return;
+      e.dataTransfer.setData('text/plain', JSON.stringify({ type: tile.dataset.type }));
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+
+    // Journey helpers
+    function createNode(type, cfg){
+      const meta = REG[type]; if (!meta) return null;
+      const id = uid();
+      const node = document.createElement('div');
+      node.className = 'node'; node.draggable = true; node.dataset.id = id; node.dataset.type = type;
+      node.innerHTML = `
+        <div class="node-head">
+          <div class="node-meta">
+            <div class="node-ico">${meta.ico}</div>
+            <div>
+              <div style="font-weight:700;">${meta.label}</div>
+              <div class="summary" style="opacity:.85; font-size:13px;"></div>
+            </div>
+            <span class="badge">${meta.kind}</span>
+          </div>
+          <div class="node-actions">
+            <button class="btn ghost" data-act="up">↑</button>
+            <button class="btn ghost" data-act="down">↓</button>
+            <button class="btn ghost" data-act="dup">Duplicate</button>
+            <button class="btn" data-act="del">Delete</button>
+          </div>
+        </div>
+        <div class="cfg">${renderCfg(type, cfg ?? meta.defaults)}</div>
+      `;
+      updateSummary(node);
+      // actions
+      node.addEventListener('click', (ev)=>{
+        const b = ev.target.closest('button'); if (!b) return;
+        const act = b.dataset.act;
+        if (act === 'del'){ node.remove(); syncCanvasState(); }
+        if (act === 'dup'){ insertNode(type, readCfg(node), node.nextSibling); }
+        if (act === 'up'){ journey.insertBefore(node, node.previousElementSibling); syncCanvasState(); }
+        if (act === 'down'){ journey.insertBefore(node.nextElementSibling, node); syncCanvasState(); }
+      });
+      node.querySelectorAll('[name]').forEach(inp=>{ inp.addEventListener('input', ()=>{ updateSummary(node); syncCanvasState(); }); });
+
+      // Drag reorder
+      node.addEventListener('dragstart', ev=>{ node.classList.add('ghost'); ev.dataTransfer.setData('text/plain', JSON.stringify({ id })); ev.dataTransfer.effectAllowed = 'move'; });
+      node.addEventListener('dragend', ()=> node.classList.remove('ghost'));
+      return node;
+    }
+
+    function renderCfg(type, cfg){
+      const p = loadProducts();
+      const blocks = {
+        trackProduct: () => {
+          const opts = p.map(x => `<option value="${x.id}" ${cfg.productId===x.id?'selected':''}>${escape(x.name)}</option>`).join('') || '<option value="">Add products in Setup</option>';
+          return `<div><label>Product<select name="productId">${opts}</select></label></div>`;
+        },
+        schedule: () => `<div><label>Frequency<select name="freq"><option ${cfg.freq==='daily'?'selected':''} value="daily">Daily</option><option ${cfg.freq==='weekly'?'selected':''} value="weekly">Weekly</option></select></label></div>`,
+        expirationRule: () => `<div><label>Within (days)<input type="number" name="withinDays" value="${cfg.withinDays}"></label></div>`,
+        qtyBelow: () => `<div><label>Threshold<input type="number" name="threshold" value="${cfg.threshold}"></label></div>`,
+        discount: () => `<div><label>Discount %<input type="number" name="percent" value="${cfg.percent}"></label></div>`,
+        adjustQuantity: () => `
+          <div><label>Direction<select name="direction"><option ${cfg.direction==='decrease'?'selected':''} value="decrease">Decrease</option><option ${cfg.direction==='increase'?'selected':''} value="increase">Increase</option></select></label></div>
+          <div><label>Amount<input type="number" name="amount" value="${cfg.amount}"></label></div>
+          <div><label>Unit<select name="unit"><option ${cfg.unit==='%'?'selected':''} value="%">%</option><option ${cfg.unit==='abs'?'selected':''} value="abs">Absolute</option></select></label></div>`,
+        notify: () => `<div><label>Channel<select name="channel"><option ${cfg.channel==='email'?'selected':''} value="email">Email</option><option ${cfg.channel==='sms'?'selected':''} value="sms">SMS</option></select></label></div>`
+      };
+      return (blocks[type] ? blocks[type]() : '<div><em>No configuration</em></div>');
+    }
+
+    function readCfg(node){ const cfg = {}; node.querySelectorAll('[name]').forEach(inp=> cfg[inp.name] = coerce(inp.value)); return cfg; }
+    function coerce(v){ if (v === 'true') return true; if (v === 'false') return false; const n = Number(v); return Number.isFinite(n) && String(n) === v ? n : v; }
+
+    function updateSummary(node){
+      const type = node.dataset.type; const cfg = readCfg(node); const S = node.querySelector('.summary');
+      const pmap = Object.fromEntries(loadProducts().map(x=>[x.id, x.name]));
+      const human = {
+        trackProduct: () => `Monitoring <strong>${escape(pmap[cfg.productId]||'—')}</strong>`,
+        schedule: () => `Runs <strong>${cfg.freq}</strong>`,
+        expirationRule: () => `If shelf life &lt; <strong>${cfg.withinDays} days</strong>`,
+        qtyBelow: () => `If qty &lt; <strong>${cfg.threshold}</strong>`,
+        discount: () => `Apply <strong>${cfg.percent}%</strong> discount`,
+        adjustQuantity: () => `${cfg.direction==='decrease'?'Decrease':'Increase'} by <strong>${cfg.amount}${cfg.unit==='%'?'%':''}</strong>`,
+        notify: () => `Notify via <strong>${cfg.channel.toUpperCase()}</strong>`
+      };
+      S.innerHTML = human[type] ? human[type]() : '';
+      composeNarrative();
+    }
+
+    function composeNarrative(){
+      const steps = [...journey.children].map(n=>({ type:n.dataset.type, cfg: readCfg(n) }));
+      if (!steps.length){ narrativeEl.innerHTML = '<span class="muted">Readable summary will appear here…</span>'; return; }
+      const pmap = Object.fromEntries(loadProducts().map(x=>[x.id, x.name]));
+      const trigger = steps.find(s=> s.type==='trackProduct' || s.type==='schedule');
+      const productName = trigger?.type==='trackProduct' ? (pmap[trigger.cfg.productId] || 'selected product') : 'selected product';
+      const conds = steps.filter(s=> REG[s.type]?.kind==='condition');
+      const acts  = steps.filter(s=> REG[s.type]?.kind==='action');
+
+      const parts = [];
+      // For [Product]
+      parts.push(`For <strong>${escape(productName)}</strong>`);
+      // Conditions
+      if (conds.length){
+        const ctext = conds.map(c=>{
+          if (c.type==='expirationRule') return `shelf life is under <strong>${c.cfg.withinDays} days</strong>`;
+          if (c.type==='qtyBelow') return `quantity is below <strong>${c.cfg.threshold}</strong>`;
+          return '';
+        }).filter(Boolean).join(' and ');
+        if (ctext) parts.push(`if ${ctext}`);
+      }
+      // Actions
+      if (acts.length){
+        const atext = acts.map(a=>{
+          if (a.type==='discount') return `apply a <strong>${a.cfg.percent}% discount</strong>`;
+          if (a.type==='adjustQuantity') return `${a.cfg.direction==='decrease'?'decrease':'increase'} quantity by <strong>${a.cfg.amount}${a.cfg.unit==='%'?'%':''}</strong>`;
+          if (a.type==='notify') return `notify via <strong>${a.cfg.channel.toUpperCase()}</strong>`;
+          return '';
+        }).filter(Boolean).join(' and ');
+        if (atext) parts.push(`then ${atext}`);
+      }
+      narrativeEl.innerHTML = parts.join(', ') + '.';
+    }
+
+    function insertNode(type, cfg, before=null){
+      const node = createNode(type, cfg);
+      journey.insertBefore(node, before);
+      dropzone.hidden = true; journey.hidden = false;
+      syncCanvasState();
+    }
+
+    // Drag from palette to canvas
+    ;[dropzone, journey].forEach(area =>{
+      area.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; showMarker(area, getAfter(journey, e.clientY)); });
+      area.addEventListener('dragleave', hideMarker);
+      area.addEventListener('drop', e=>{
+        e.preventDefault(); hideMarker();
+        const data = safeParse(e.dataTransfer.getData('text/plain')); if (!data) return;
+        if (data.id){ // reordering existing node
+          const moving = journey.querySelector(`.node[data-id="${data.id}"]`);
+          const after = getAfter(journey, e.clientY);
+          journey.insertBefore(moving, after);
+          syncCanvasState();
+        } else if (data.type){
+          const after = getAfter(journey, e.clientY);
+          insertNode(data.type, null, after);
+        }
+      });
+    });
+
+    function getAfter(container, y){
+      const els = [...container.querySelectorAll('.node:not(.ghost)')];
+      let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+      for (const el of els){ const box = el.getBoundingClientRect(); const offset = y - box.top - box.height/2; if (offset < 0 && offset > closest.offset){ closest = { offset, element: el }; } }
+      return closest.element; // null = append
+    }
+
+    let marker = null;
+    function showMarker(container, before){ if (!marker){ marker = document.createElement('div'); marker.className = 'drop-marker'; } if (before){ before.parentNode.insertBefore(marker, before); } else { container.append(marker); } }
+    function hideMarker(){ marker?.remove(); }
+
+    function escape(s){ return (s||'').replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
+    function safeParse(t){ try{ return JSON.parse(t);} catch{ return null; } }
+
+    // Presets
+    const PRESETS = {
+      expSimple: [ {type:'trackProduct'}, {type:'expirationRule', cfg:{withinDays:2}}, {type:'discount', cfg:{percent:20}} ],
+      basicReorder: [ {type:'trackProduct'}, {type:'qtyBelow', cfg:{threshold:5}}, {type:'adjustQuantity', cfg:{direction:'increase', amount:10, unit:'%'}}, {type:'notify', cfg:{channel:'email'}} ]
+    };
+
+    $('#loadPreset')?.addEventListener('click', ()=>{
+      const key = $('#preset').value; if (!key) return;
+      journey.innerHTML = '';
+      for (const step of PRESETS[key]) insertNode(step.type, step.cfg||null);
+      composeNarrative();
+    });
+
+    // Save / Export / Clear
+    function serialize(){
+      const steps = [...journey.children].map(n=>({ type:n.dataset.type, cfg: readCfg(n) }));
+      return { version:2, steps };
+    }
+    function syncCanvasState(){ localStorage.setItem(PIPE_KEY, JSON.stringify(serialize())); composeNarrative(); if (!journey.children.length){ dropzone.hidden=false; journey.hidden=true; } }
+
+    $('#save')?.addEventListener('click', ()=>{ localStorage.setItem(PIPE_KEY, JSON.stringify(serialize())); alert('Saved.'); });
+    $('#export')?.addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(serialize(), null, 2)], { type:'application/json' });
+      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='inventory-journey.json'; a.click(); URL.revokeObjectURL(url);
+    });
+    $('#clear')?.addEventListener('click', ()=>{ journey.innerHTML=''; syncCanvasState(); narrativeEl.innerHTML = '<span class="muted">Readable summary will appear here…</span>'; });
+
+    // Load from LS
+    (function init(){
+      const raw = localStorage.getItem(PIPE_KEY); if (raw){ try{ const data = JSON.parse(raw); for (const s of data.steps||[]) insertNode(s.type, s.cfg||null); } catch {} }
+      composeNarrative();
+    })();
+  })();
+  </script>
+</body>
+</html>
