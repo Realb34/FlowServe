@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light dark" />
   <title>Retail Portal — Inventory Automation</title>
   <style>
-    :root { --bg:#ffffff; --surface:#f8fafc; --text:#0f172a; --muted:#eef2ff; --muted-2:#e2e8f0; --link:#3b82f6; --brand:#4f46e5; --brand-2:#22c55e; --focus:#f59e0b; --border:#e5e7eb; --shadow:0 8px 24px rgba(2,6,23,0.08); --radius:16px; }
-    @media (prefers-color-scheme: dark){ :root{ --bg:#0b1020; --surface:#0f172a; --text:#e5e7eb; --muted:#182032; --muted-2:#1f2937; --link:#93c5fd; --brand:#818cf8; --brand-2:#86efac; --border:#1f2a44; --shadow:0 8px 24px rgba(0,0,0,0.35);} }
+    :root { --bg:#0d1020; --surface:#0f172a; --text:#e5e7eb; --muted:#111827; --muted-2:#1f2937; --link:#93c5fd; --brand:#818cf8; --brand-2:#86efac; --focus:#f59e0b; --border:#1f2a44; --shadow:0 8px 24px rgba(0,0,0,0.35); --radius:16px; --node:#0b1224; --node-border:#25324d; --accent-a:#4f46e5; --accent-b:#22c55e; --accent-c:#38bdf8; --accent-d:#f59e0b; --danger:#ef4444; --success:#22c55e; }
+    @media (prefers-color-scheme: light){ :root{ --bg:#0b1020; --surface:#0f172a; --text:#e5e7eb; --muted:#0b1224; --muted-2:#12203b; --link:#93c5fd; --brand:#8da2fb; --brand-2:#9ef3c2; --border:#12203b; --shadow:0 8px 24px rgba(0,0,0,0.35); --node:#0c142a; --node-border:#223458; } }
     *,*::before,*::after{ box-sizing:border-box; }
     body{ margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial; line-height:1.6; background:var(--bg); color:var(--text); }
     a{ color:var(--link); text-decoration:none; }
@@ -15,7 +15,7 @@
     .skip-link{ position:absolute; left:-999px; background:var(--brand); color:#fff; padding:10px 14px; border-radius:10px; }
     .skip-link:focus{ left:12px; top:12px; z-index:1000; }
 
-    header{ position:sticky; top:0; z-index:100; backdrop-filter: blur(10px); background: color-mix(in oklab, var(--bg) 82%, transparent); border-bottom:1px solid var(--border); }
+    header{ position:sticky; top:0; z-index:100; backdrop-filter: blur(10px); background: color-mix(in oklab, var(--bg) 86%, transparent); border-bottom:1px solid var(--border); }
     .navbar{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; gap:12px; }
     .brand{ display:flex; gap:10px; align-items:center; font-weight:700; }
     .logo{ width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg,var(--brand),var(--brand-2)); box-shadow:var(--shadow); }
@@ -24,14 +24,16 @@
     nav a:hover{ background:var(--muted);} 
     nav a.active{ background:var(--muted);} 
     .menu-toggle{ display:none; border:1px solid var(--border); background:var(--surface); padding:8px 10px; border-radius:10px; }
-    @media (max-width:860px){ nav ul{ display:none; position:absolute; right:0; top:calc(100% + 10px); flex-direction:column; min-width:240px; background:var(--bg); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:8px; }
+    @media (max-width:860px){ nav ul{ display:none; position:absolute; right:0; top:calc(100% + 10px); flex-direction:column; min-width:240px; background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:8px; }
       nav[aria-expanded="true"] ul{ display:flex; }
       .menu-toggle{ display:inline-flex; }
     }
 
     .visually-hidden{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
-    .page-head{ background: radial-gradient(1200px 600px at 10% 0%, color-mix(in oklab, var(--brand) 12%, transparent), transparent), radial-gradient(900px 400px at 90% 10%, color-mix(in oklab, var(--brand-2) 10%, transparent), transparent);} 
+    .page-head{ background:
+      radial-gradient(900px 400px at 10% -10%, color-mix(in oklab, var(--accent-a) 24%, transparent), transparent),
+      radial-gradient(900px 400px at 100% 0%, color-mix(in oklab, var(--accent-b) 18%, transparent), transparent);} 
     .page-head .wrap{ padding: clamp(26px, 5vw, 56px) 0; display:grid; gap:12px; }
     .page-head h1{ font-size:clamp(24px,3.6vw,36px); margin:0; }
     .breadcrumbs{ font-size:14px; opacity:0.85; }
@@ -47,48 +49,63 @@
     .panel .hd{ padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .panel .bd{ padding:12px 14px; }
 
-    .search{ width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); }
+    .search{ width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:var(--node); color:var(--text); }
 
-    /* Palette styled like SFMC tiles */
-    .palette{ display:grid; gap:10px; }
-    .group{ border:1px dashed var(--border); border-radius:12px; padding:10px; }
-    .group h3{ margin:0 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:.05em; opacity:.8; }
+    /* Palette styled as compact app tiles */
+    .palette{ display:grid; gap:12px; }
+    .group{ border:1px dashed var(--node-border); border-radius:12px; padding:10px; background:linear-gradient(180deg, color-mix(in oklab, var(--node) 92%, transparent), transparent); }
+    .group h3{ margin:0 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.08em; opacity:.8; }
     .tiles{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     @media (max-width:420px){ .tiles{ grid-template-columns:1fr; } }
-    .tile{ display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--border); border-radius:12px; background:var(--bg); box-shadow:var(--shadow); cursor:grab; user-select:none; }
-    .tile .ico{ width:28px; height:28px; border-radius:8px; display:grid; place-items:center; background:var(--muted); font-size:16px; }
+    .tile{ display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--node-border); border-radius:12px; background:var(--node); box-shadow:var(--shadow); cursor:grab; user-select:none; }
+    .tile .ico{ width:28px; height:28px; border-radius:8px; display:grid; place-items:center; background:color-mix(in oklab, var(--accent-c) 16%, var(--node)); font-size:16px; }
     .tile .title{ font-weight:700; }
 
-    /* Canvas: vertical journey with connectors */
-    .canvas-wrap{ display:grid; gap:10px; }
-    .narrative{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; font-size:15px; }
-    .narrative .muted{ opacity:0.8; }
+    /* Canvas aesthetic: dotted grid like the map */
+    .canvas-wrap{ display:grid; gap:12px; }
+    .canvas-bg{ position:relative; border:1px solid var(--border); border-radius:var(--radius); background:
+        radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(180deg, color-mix(in oklab, var(--surface) 85%, transparent), transparent);
+      background-size:18px 18px, auto;
+      box-shadow:var(--shadow);
+      padding:14px;
+      min-height:460px;
+    }
 
-    .journey{ position:relative; padding-left:30px; }
-    .journey::before{ content:""; position:absolute; left:14px; top:0; bottom:0; width:2px; background:var(--muted-2); border-radius:2px; }
-    .node{ position:relative; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:12px; margin:8px 0; display:grid; gap:8px; }
-    .node::before{ content:""; position:absolute; left:-18px; top:20px; width:12px; height:12px; background:linear-gradient(135deg,var(--brand),var(--brand-2)); border-radius:999px; box-shadow:0 0 0 3px var(--bg); }
-    .node-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
-    .node-meta{ display:flex; align-items:center; gap:8px; }
-    .node-ico{ width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background:var(--muted); font-size:18px; }
-    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:var(--muted); font-size:12px; }
+    /* Journey nodes styled like the map cards */
+    .journey{ position:relative; display:grid; gap:14px; }
+    .node{ position:relative; background:var(--node); border:1px solid var(--node-border); border-radius:16px; box-shadow:var(--shadow); padding:12px; display:grid; gap:8px; }
+    .node .node-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .node .node-meta{ display:flex; align-items:center; gap:10px; }
+    .node .node-ico{ width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:color-mix(in oklab, var(--accent-a) 20%, var(--node)); font-size:18px; }
+    .node .badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--node-border); background:color-mix(in oklab, var(--accent-b) 10%, var(--node)); font-size:12px; }
     .node-actions{ display:flex; gap:6px; }
-
-    .btn{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; }
+    .btn{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid var(--node-border); background:var(--surface); color:var(--text); cursor:pointer; }
     .btn.primary{ background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; border-color:transparent; }
     .btn.ghost{ background:transparent; }
+    .btn.danger{ background:var(--danger); color:#fff; border-color:transparent; }
 
     .cfg{ display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:8px; }
     @media (max-width:780px){ .cfg{ grid-template-columns:1fr; } }
     label{ font-size:12px; font-weight:700; display:block; }
-    input[type="text"], input[type="number"], select{ width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); }
+    input[type="text"], input[type="number"], select{ width:100%; padding:8px 10px; border:1px solid var(--node-border); border-radius:10px; background:var(--surface); color:var(--text); }
 
-    .dropzone{ border:2px dashed var(--border); border-radius:14px; min-height:140px; display:grid; place-items:center; color:#64748b; padding:10px; }
-    .drop-marker{ height:48px; border:2px dashed var(--brand); border-radius:10px; margin:6px 0; }
-    .ghost{ opacity:.6; }
+    .dropzone{ border:2px dashed var(--node-border); border-radius:14px; min-height:140px; display:grid; place-items:center; color:#a3b0c7; padding:10px; background:linear-gradient(180deg, color-mix(in oklab, var(--surface) 90%, transparent), transparent); }
+    .drop-marker{ height:48px; border:2px dashed var(--accent-a); border-radius:10px; margin:6px 0; }
+    .ghost{ opacity:.55; }
 
     .toolbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
-    select.toolbar{ padding:8px 10px; border:1px solid var(--border); background:var(--bg); color:var(--text); border-radius:10px; }
+    select.toolbar{ padding:8px 10px; border:1px solid var(--node-border); background:var(--surface); color:var(--text); border-radius:10px; }
+
+    /* Narrative chip row */
+    .narrative{ background:var(--surface); border:1px solid var(--node-border); border-radius:12px; padding:12px; font-size:15px; }
+    .narrative .muted{ opacity:0.85; }
+
+    /* Decorative vertical connector line to mimic map rails */
+    .journey::before{ content:""; position:absolute; left:18px; top:0; bottom:0; width:2px; background:color-mix(in oklab, var(--accent-c) 20%, var(--muted-2)); border-radius:2px; }
+    .node::before{ content:""; position:absolute; left:-6px; top:22px; width:10px; height:10px; background:linear-gradient(135deg,var(--accent-a),var(--accent-b)); border-radius:999px; box-shadow:0 0 0 3px var(--surface); }
+
+    footer a{ color:var(--link); }
   </style>
 </head>
 <body>
@@ -114,20 +131,20 @@
           <a href="index.html">Home</a> / <span aria-current="page">Inventory Automation</span>
         </nav>
         <h1>Automation Builder</h1>
-        <p class="lead">Build an easy, readable journey: <strong>For [Product] → If [Conditions] → Then [Actions]</strong>. Drag tiles or use presets.</p>
+        <p class="lead">Same logic, new look: drag tiles to build a journey that <strong>looks like the map</strong> — For [Product] → If [Conditions] → Then [Actions].</p>
       </div>
     </section>
 
     <section class="section">
       <div class="container layout">
-        <!-- LEFT: Palette (tiles like SFMC) -->
+        <!-- LEFT: Palette (tiles) -->
         <aside class="panel" aria-label="Palette">
           <div class="hd"><strong>Palette</strong><button class="btn" id="presetBtn" type="button">Load Preset</button></div>
           <div class="bd palette" id="palette">
             <div class="group">
               <h3>Triggers</h3>
               <div class="tiles">
-                <div class="tile" draggable="true" data-type="trackProduct"><div class="ico">📦</div><div><div class="title">Track Product</div><small>Select a product to monitor</small></div></div>
+                <div class="tile" draggable="true" data-type="trackProduct"><div class="ico">📝</div><div><div class="title">Track Product</div><small>Select a product to monitor</small></div></div>
                 <div class="tile" draggable="true" data-type="schedule"><div class="ico">⏱️</div><div><div class="title">Schedule</div><small>Run daily/weekly</small></div></div>
               </div>
             </div>
@@ -143,7 +160,9 @@
               <div class="tiles">
                 <div class="tile" draggable="true" data-type="discount"><div class="ico">🏷️</div><div><div class="title">Apply Discount</div><small>Percent off</small></div></div>
                 <div class="tile" draggable="true" data-type="adjustQuantity"><div class="ico">➖</div><div><div class="title">Adjust Quantity</div><small>Increase/Decrease</small></div></div>
-                <div class="tile" draggable="true" data-type="notify"><div class="ico">🔔</div><div><div class="title">Notify</div><small>Email/SMS</small></div></div>
+                <div class="tile" draggable="true" data-type="notify"><div class="ico">🔔</div><div><div class="title">Notify</div><small>In-app alert</small></div></div>
+                <div class="tile" draggable="true" data-type="emailNotify"><div class="ico">✉️</div><div><div class="title">Send Email</div><small>External system</small></div></div>
+                <div class="tile" draggable="true" data-type="sheetAppend"><div class="ico">📄</div><div><div class="title">Spreadsheet Append</div><small>Google/Excel</small></div></div>
               </div>
             </div>
           </div>
@@ -159,16 +178,20 @@
               <option value="">Presets…</option>
               <option value="expSimple">20% discount if shelf life < 2 days</option>
               <option value="basicReorder">Basic Reorder</option>
+              <option value="emailAlert">Email when qty low</option>
+              <option value="sheetLog">Log actions to sheet</option>
             </select>
             <button class="btn" id="loadPreset" type="button">Load</button>
           </div>
 
           <div class="narrative" id="narrative"><span class="muted">Readable summary will appear here…</span></div>
 
-          <div class="dropzone" id="dropzone" aria-label="Journey canvas">
-            <div>Drag tiles here to start your journey</div>
+          <div class="canvas-bg">
+            <div class="dropzone" id="dropzone" aria-label="Journey canvas">
+              <div>Drag tiles here to start your journey</div>
+            </div>
+            <div class="journey" id="journey" hidden></div>
           </div>
-          <div class="journey" id="journey" hidden></div>
         </section>
       </div>
     </section>
@@ -232,18 +255,20 @@
 
     // ===== Data & LocalStorage =====
     const LS_PRODUCTS = 'inv_products_v1';
-    const PIPE_KEY = 'inventoryJourney_v2';
+    const PIPE_KEY = 'inventoryJourney_v3'; // bumped for UI refresh
     function loadProducts(){ try { return JSON.parse(localStorage.getItem(LS_PRODUCTS)||'[]'); } catch { return []; } }
 
-    // Registry of nodes (SFMC-like tiles)
+    // Registry of nodes (tiles)
     const REG = {
-      trackProduct: { label:'Track Product', ico:'📦', kind:'trigger', defaults:{ productId:'' } },
+      trackProduct: { label:'Track Product', ico:'📝', kind:'trigger', defaults:{ productId:'' } },
       schedule:     { label:'Schedule', ico:'⏱️', kind:'trigger', defaults:{ freq:'daily' } },
       expirationRule:{ label:'Expiration Within', ico:'🧊', kind:'condition', defaults:{ withinDays:2 } },
       qtyBelow:     { label:'Quantity Below', ico:'📉', kind:'condition', defaults:{ threshold:5 } },
       discount:     { label:'Apply Discount', ico:'🏷️', kind:'action', defaults:{ percent:20 } },
       adjustQuantity:{ label:'Adjust Quantity', ico:'➖', kind:'action', defaults:{ direction:'decrease', amount:20, unit:'%' } },
-      notify:       { label:'Notify', ico:'🔔', kind:'action', defaults:{ channel:'email' } }
+      notify:       { label:'Notify', ico:'🔔', kind:'action', defaults:{ channel:'inapp' } },
+      emailNotify:  { label:'Send Email', ico:'✉️', kind:'action', defaults:{ to:'ops@example.com', subject:'Inventory Alert', body:'An inventory event occurred.' } },
+      sheetAppend:  { label:'Spreadsheet Append', ico:'📄', kind:'action', defaults:{ provider:'google', sheetId:'', tab:'Sheet1', range:'A1' } }
     };
 
     // Palette drag
@@ -264,8 +289,8 @@
           <div class="node-meta">
             <div class="node-ico">${meta.ico}</div>
             <div>
-              <div style="font-weight:700;">${meta.label}</div>
-              <div class="summary" style="opacity:.85; font-size:13px;"></div>
+              <div style="font-weight:800;">${meta.label}</div>
+              <div class="summary" style="opacity:.9; font-size:13px;"></div>
             </div>
             <span class="badge">${meta.kind}</span>
           </div>
@@ -273,7 +298,7 @@
             <button class="btn ghost" data-act="up">↑</button>
             <button class="btn ghost" data-act="down">↓</button>
             <button class="btn ghost" data-act="dup">Duplicate</button>
-            <button class="btn" data-act="del">Delete</button>
+            <button class="btn danger" data-act="del">Delete</button>
           </div>
         </div>
         <div class="cfg">${renderCfg(type, cfg ?? meta.defaults)}</div>
@@ -311,7 +336,18 @@
           <div><label>Direction<select name="direction"><option ${cfg.direction==='decrease'?'selected':''} value="decrease">Decrease</option><option ${cfg.direction==='increase'?'selected':''} value="increase">Increase</option></select></label></div>
           <div><label>Amount<input type="number" name="amount" value="${cfg.amount}"></label></div>
           <div><label>Unit<select name="unit"><option ${cfg.unit==='%'?'selected':''} value="%">%</option><option ${cfg.unit==='abs'?'selected':''} value="abs">Absolute</option></select></label></div>`,
-        notify: () => `<div><label>Channel<select name="channel"><option ${cfg.channel==='email'?'selected':''} value="email">Email</option><option ${cfg.channel==='sms'?'selected':''} value="sms">SMS</option></select></label></div>`
+        notify: () => `<div><label>Channel<select name="channel"><option ${cfg.channel==='inapp'?'selected':''} value="inapp">In-App</option><option ${cfg.channel==='sms'?'selected':''} value="sms">SMS</option></select></label></div>`,
+        emailNotify: () => `
+          <div><label>To <input type="text" name="to" value="${escape(cfg.to)}" placeholder="ops@example.com"></label></div>
+          <div><label>Subject <input type="text" name="subject" value="${escape(cfg.subject)}"></label></div>
+          <div><label>Body <input type="text" name="body" value="${escape(cfg.body)}"></label></div>
+        `,
+        sheetAppend: () => `
+          <div><label>Provider<select name="provider"><option ${cfg.provider==='google'?'selected':''} value="google">Google Sheets</option><option ${cfg.provider==='excel'?'selected':''} value="excel">Excel (OneDrive)</option></select></label></div>
+          <div><label>Sheet ID/URL <input type="text" name="sheetId" value="${escape(cfg.sheetId)}" placeholder="..."></label></div>
+          <div><label>Tab <input type="text" name="tab" value="${escape(cfg.tab)}" placeholder="Sheet1"></label></div>
+          <div><label>Start Range <input type="text" name="range" value="${escape(cfg.range)}" placeholder="A1"></label></div>
+        `
       };
       return (blocks[type] ? blocks[type]() : '<div><em>No configuration</em></div>');
     }
@@ -329,7 +365,9 @@
         qtyBelow: () => `If qty &lt; <strong>${cfg.threshold}</strong>`,
         discount: () => `Apply <strong>${cfg.percent}%</strong> discount`,
         adjustQuantity: () => `${cfg.direction==='decrease'?'Decrease':'Increase'} by <strong>${cfg.amount}${cfg.unit==='%'?'%':''}</strong>`,
-        notify: () => `Notify via <strong>${cfg.channel.toUpperCase()}</strong>`
+        notify: () => `Notify via <strong>${cfg.channel.toUpperCase()}</strong>`,
+        emailNotify: () => `Email <strong>${escape(cfg.to)}</strong> (“${escape(cfg.subject)}”)`,
+        sheetAppend: () => `Append to <strong>${cfg.provider==='google'?'Google Sheets':'Excel'}</strong> tab <strong>${escape(cfg.tab)}</strong> @ <strong>${escape(cfg.range)}</strong>`
       };
       S.innerHTML = human[type] ? human[type]() : '';
       composeNarrative();
@@ -345,9 +383,7 @@
       const acts  = steps.filter(s=> REG[s.type]?.kind==='action');
 
       const parts = [];
-      // For [Product]
       parts.push(`For <strong>${escape(productName)}</strong>`);
-      // Conditions
       if (conds.length){
         const ctext = conds.map(c=>{
           if (c.type==='expirationRule') return `shelf life is under <strong>${c.cfg.withinDays} days</strong>`;
@@ -356,12 +392,13 @@
         }).filter(Boolean).join(' and ');
         if (ctext) parts.push(`if ${ctext}`);
       }
-      // Actions
       if (acts.length){
         const atext = acts.map(a=>{
           if (a.type==='discount') return `apply a <strong>${a.cfg.percent}% discount</strong>`;
           if (a.type==='adjustQuantity') return `${a.cfg.direction==='decrease'?'decrease':'increase'} quantity by <strong>${a.cfg.amount}${a.cfg.unit==='%'?'%':''}</strong>`;
-          if (a.type==='notify') return `notify via <strong>${a.cfg.channel.toUpperCase()}</strong>`;
+          if (a.type==='notify') return `send an <strong>${a.cfg.channel.toUpperCase()}</strong> notification`;
+          if (a.type==='emailNotify') return `send an <strong>EMAIL</strong> to <strong>${escape(a.cfg.to)}</strong>`;
+          if (a.type==='sheetAppend') return `append a row to <strong>${a.cfg.provider==='google'?'Google Sheet':'Excel Sheet'}</strong> (<em>${escape(a.cfg.tab)}</em>)`;
           return '';
         }).filter(Boolean).join(' and ');
         if (atext) parts.push(`then ${atext}`);
@@ -409,10 +446,12 @@
     function escape(s){ return (s||'').replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
     function safeParse(t){ try{ return JSON.parse(t);} catch{ return null; } }
 
-    // Presets
+    // Presets (added email/sheets examples)
     const PRESETS = {
       expSimple: [ {type:'trackProduct'}, {type:'expirationRule', cfg:{withinDays:2}}, {type:'discount', cfg:{percent:20}} ],
-      basicReorder: [ {type:'trackProduct'}, {type:'qtyBelow', cfg:{threshold:5}}, {type:'adjustQuantity', cfg:{direction:'increase', amount:10, unit:'%'}}, {type:'notify', cfg:{channel:'email'}} ]
+      basicReorder: [ {type:'trackProduct'}, {type:'qtyBelow', cfg:{threshold:5}}, {type:'adjustQuantity', cfg:{direction:'increase', amount:10, unit:'%'}}, {type:'notify', cfg:{channel:'inapp'}} ],
+      emailAlert: [ {type:'trackProduct'}, {type:'qtyBelow', cfg:{threshold:3}}, {type:'emailNotify', cfg:{to:'inventory@company.com',subject:'Low Stock',body:'Stock below threshold'}} ],
+      sheetLog: [ {type:'trackProduct'}, {type:'discount', cfg:{percent:10}}, {type:'sheetAppend', cfg:{provider:'google', sheetId:'1Abc...', tab:'AutomationLog', range:'A1'}} ]
     };
 
     $('#loadPreset')?.addEventListener('click', ()=>{
@@ -425,7 +464,7 @@
     // Save / Export / Clear
     function serialize(){
       const steps = [...journey.children].map(n=>({ type:n.dataset.type, cfg: readCfg(n) }));
-      return { version:2, steps };
+      return { version:3, steps };
     }
     function syncCanvasState(){ localStorage.setItem(PIPE_KEY, JSON.stringify(serialize())); composeNarrative(); if (!journey.children.length){ dropzone.hidden=false; journey.hidden=true; } }
 
